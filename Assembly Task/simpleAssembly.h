@@ -7,21 +7,34 @@ Assembly Instruction을 Machine Code로 변환하는데 필요한 데이터를 제공하는 헤더
 작성자 : 2020039091 어록희 
 */
 
+#include <stdio.h>
+#include <string.h>
+#include <string>
+#include <vector>
+
+using namespace std;
+using std::string;
+using std::vector;
 
 //Instruction set Init
 struct INST
 {
-	char op;
-	char funct;
-	bool format; // R_FORMAT = 0, I_FORMAT = 1
+	string op;
+	string funct;
 };
 
 INST add, addi, sub, lw, sw;
 
-
 //Register Number Init
-const char t[10] = {8, 9, 10, 11, 12, 13, 14, 15, 24, 25};
-const char s[8]  = {16, 17, 18, 19, 20, 21, 22, 23};
+const string t[10] = {"01000", "01001", "01010", "01011", "01100", "01101", "01110", "01111", "11000", "11001"};
+const string s[8]  = {"10000", "10001", "10010", "10011", "10100", "10101", "10110", "10111"};
+const string shamt = "00000";
+
+vector<string> instruction;
+vector<string> machineCode;
+vector<string> tempToken;
 
 //Function Init
 void instructionInit(); //Instruction Set Number Init 
+string registerSelector(string regi); //Resigster Select
+void wordTokenizer(string s); //lw, sw tokenizer 

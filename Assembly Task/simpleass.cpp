@@ -7,8 +7,6 @@ Assembly Instruction을 텍스트파일로 입력받아 Machine Code로 변환하는 프로그램
 작성자 : 2020039091 어록희 
 */
 
-#include <stdio.h>
-#include <String.h>
 #include  "simpleAssembly.h"
 
 int main(int argc, char** argv)
@@ -16,14 +14,15 @@ int main(int argc, char** argv)
 	//인수 3개 ( format : simpleass [input file] [output file] )
 	if (argc == 3)
 	{
+
 		//Text File Open
-		FILE* inputFile = fopen(argv[1], "rt");
-		FILE* outputFile = fopen(argv[2], "wt");
+		FILE *inputFile = fopen(argv[1], "rt");
+		FILE *outputFile = fopen(argv[2], "wt");
 
 		//Stream Open Checker
 		if (inputFile == NULL) { printf("Input file Error"); return 1; }
 		else if (outputFile == NULL) { printf("Output file Error");	return 1; }
-		
+	
 		/*
 		TODO 
 		1. 파일 불러오기 
@@ -34,11 +33,94 @@ int main(int argc, char** argv)
 		6. 저장된 Output파일에서 4글자마다 공백추가 
 		*/
 		instructionInit();
-
+		//input file tokenize
+		char buffer[255];
+		char *pStr;
+		while (!feof(inputFile))
+		{
+			//get line
+			pStr = fgets(buffer, 255, inputFile);
+			//tokenize
+			char *tPtr = strtok(pStr, " 	,");
+		    while (tPtr != NULL)
+		    {
+		    	instruction.push_back(tPtr);
+		        tPtr = strtok(NULL, " 	,");
+		    }
+		}
+		for (int i = 0; i < instruction.size(); i++)
+		{
+			printf((char *)instruction[i].c_str());
+			printf("asdf");
+		}
+		
+		//여기까지 진행했으면 instruction 벡터에 모든 instruction이 분리되어 들어가있을것이다.
+		int index = 0;
+		while(index < instruction.size())
+		{
+			if(instruction[index] == "add")
+			{
+				machineCode.push_back(add.op);
+				machineCode.push_back(registerSelector(instruction[index + 1]));
+				machineCode.push_back(registerSelector(instruction[index + 2]));
+				machineCode.push_back(registerSelector(instruction[index + 3]));
+				machineCode.push_back(shamt);
+				machineCode.push_back(add.funct);
+				index += 4;
+			}
+			
+			if(instruction[index] == "addi")
+			{
+				machineCode.push_back(addi.op);
+				machineCode.push_back(registerSelector(instruction[index + 1]));
+				machineCode.push_back(registerSelector(instruction[index + 2]));
+				//const or address (16 bit) 
+				index += 3;
+			}
+			
+			if(instruction[index] == "sub")
+			{
+				machineCode.push_back(sub.op);
+				machineCode.push_back(registerSelector(instruction[index + 1]));
+				machineCode.push_back(registerSelector(instruction[index + 2]));
+				machineCode.push_back(registerSelector(instruction[index + 3]));
+				machineCode.push_back(shamt);
+				machineCode.push_back(sub.funct);
+				index += 4;
+			}
+			
+			if(instruction[index] == "lw")
+			{
+				machineCode.push_back(lw.op);
+				machineCode.push_back(registerSelector(instruction[index + 1]));
+				wordTokenizer(instruction[index + 2]);
+				machineCode.push_back(registerSelector(tempToken[1]));
+				//const or address (16 bit), tempToken[0];
+				index += 3;
+			}
+			
+			if(instruction[index] == "sw")
+			{
+				machineCode.push_back(sw.op);
+				machineCode.push_back(registerSelector(instruction[index + 1]));
+				wordTokenizer(instruction[index + 2]);
+				machineCode.push_back(registerSelector(tempToken[1]));
+				//const or address (16 bit), tempToken[0];
+				index += 3;
+			}
+		}
+		//변환된 기계어를 써넣는다. 
+		for(int i = 0; i >= machineCode.size(); i++)
+		{
+			fputs((char *)machineCode[i].c_str(), outputFile);
+		} 
 		
 		//Text File Close & Stream Close Checker
 		if (fclose(inputFile) != 0) { printf("Input file Error"); return 1; }
 		else if (fclose(outputFile) != 0) { printf("Output file Error"); return 1; }
+		
+		printf("\n Task Complete.");
+		return 1;
 	}
 	else
 	{
@@ -50,23 +132,43 @@ int main(int argc, char** argv)
 
 void instructionInit()
 {
-	add.op = 0;
-	add.funct = 32;
-	add.format = 0;
+	add.op = "000000";
+	add.funct = "100000";
 	
-	addi.op = 32;
-	addi.funct = 0;
-	addi.format = 1;
+	addi.op = "100000";
+	addi.funct = "000000";
 	
-	sub.op = 0;
-	sub.funct = 16;
-	sub.format = 0;
+	sub.op = "000000";
+	sub.funct = "010000";
 	
-	lw.op = 1;
-	lw.funct = 0;
-	lw.format = 1;
+	lw.op = "000001";
+	lw.funct = "000000";
 	
-	sw.op = 2;
-	sw.funct = 0;
-	sw.format = 1;
+	sw.op = "000010";
+	sw.funct = "000000";
+}
+
+string registerSelector(string regi)
+{
+	int index = 0;
+	if(regi.at(1) == 't')
+	{
+		index = regi.at(2) - '0';
+		return t[index];
+	}	
+	else if(regi.at(1) == 's')
+	{
+		index = regi.at(2) - '0';
+		return s[index];
+	}
+}
+
+void wordTokenizer(string s)
+{
+	char *tPtr = strtok((char *)s.c_str(), "()");
+	while (tPtr != NULL)
+	{
+		tempToken.push_back(tPtr);
+	    tPtr = strtok(NULL, "()");
+	}
 }
