@@ -1,1 +1,3 @@
-add $t1, $t2, $s6
+add $t9, $t2, $s6
+sub $t5, $t3, $s1
+lw $s1,100($s2)

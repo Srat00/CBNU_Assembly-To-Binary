@@ -48,11 +48,14 @@ int main(int argc, char** argv)
 		        tPtr = strtok(NULL, " 	,");
 		    }
 		}
+
+		//debug
 		for (int i = 0; i < instruction.size(); i++)
 		{
 			printf((char *)instruction[i].c_str());
-			printf("asdf");
+			printf(" ");
 		}
+
 		
 		//여기까지 진행했으면 instruction 벡터에 모든 instruction이 분리되어 들어가있을것이다.
 		int index = 0;
@@ -69,7 +72,7 @@ int main(int argc, char** argv)
 				index += 4;
 			}
 			
-			if(instruction[index] == "addi")
+			else if(instruction[index] == "addi")
 			{
 				machineCode.push_back(addi.op);
 				machineCode.push_back(registerSelector(instruction[index + 1]));
@@ -78,7 +81,7 @@ int main(int argc, char** argv)
 				index += 3;
 			}
 			
-			if(instruction[index] == "sub")
+			else if(instruction[index] == "sub")
 			{
 				machineCode.push_back(sub.op);
 				machineCode.push_back(registerSelector(instruction[index + 1]));
@@ -89,17 +92,18 @@ int main(int argc, char** argv)
 				index += 4;
 			}
 			
-			if(instruction[index] == "lw")
+			else if(instruction[index] == "lw")
 			{
 				machineCode.push_back(lw.op);
 				machineCode.push_back(registerSelector(instruction[index + 1]));
 				wordTokenizer(instruction[index + 2]);
 				machineCode.push_back(registerSelector(tempToken[1]));
+				//printf((char *)tempToken[1].c_str());
 				//const or address (16 bit), tempToken[0];
 				index += 3;
 			}
 			
-			if(instruction[index] == "sw")
+			else if(instruction[index] == "sw")
 			{
 				machineCode.push_back(sw.op);
 				machineCode.push_back(registerSelector(instruction[index + 1]));
@@ -109,8 +113,9 @@ int main(int argc, char** argv)
 				index += 3;
 			}
 		}
+		
 		//변환된 기계어를 써넣는다. 
-		for(int i = 0; i >= machineCode.size(); i++)
+		for(int i = 0; i < machineCode.size(); i++)
 		{
 			fputs((char *)machineCode[i].c_str(), outputFile);
 		} 
@@ -119,7 +124,7 @@ int main(int argc, char** argv)
 		if (fclose(inputFile) != 0) { printf("Input file Error"); return 1; }
 		else if (fclose(outputFile) != 0) { printf("Output file Error"); return 1; }
 		
-		printf("\n Task Complete.");
+		printf("Task Complete.");
 		return 1;
 	}
 	else
@@ -153,7 +158,7 @@ string registerSelector(string regi)
 	int index = 0;
 	if(regi.at(1) == 't')
 	{
-		index = regi.at(2) - '0';
+		index = regi.at(2) - '0'; 
 		return t[index];
 	}	
 	else if(regi.at(1) == 's')
