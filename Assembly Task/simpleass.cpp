@@ -49,13 +49,14 @@ int main(int argc, char** argv)
 		    }
 		}
 
+/*
 		//debug
 		for (int i = 0; i < instruction.size(); i++)
 		{
 			printf((char *)instruction[i].c_str());
 			printf(" ");
 		}
-
+*/
 		
 		//여기까지 진행했으면 instruction 벡터에 모든 instruction이 분리되어 들어가있을것이다.
 		int index = 0;
@@ -78,7 +79,8 @@ int main(int argc, char** argv)
 				machineCode.push_back(registerSelector(instruction[index + 1]));
 				machineCode.push_back(registerSelector(instruction[index + 2]));
 				//const or address (16 bit) 
-				index += 3;
+				machineCode.push_back(constantConverter(instruction[index + 3]));
+				index += 4;
 			}
 			
 			else if(instruction[index] == "sub")
@@ -100,6 +102,7 @@ int main(int argc, char** argv)
 				machineCode.push_back(registerSelector(tempToken[1]));
 				//printf((char *)tempToken[1].c_str());
 				//const or address (16 bit), tempToken[0];
+				machineCode.push_back(constantConverter(tempToken[0]));
 				index += 3;
 			}
 			
@@ -110,6 +113,7 @@ int main(int argc, char** argv)
 				wordTokenizer(instruction[index + 2]);
 				machineCode.push_back(registerSelector(tempToken[1]));
 				//const or address (16 bit), tempToken[0];
+				machineCode.push_back(constantConverter(tempToken[0]));
 				index += 3;
 			}
 		}
@@ -176,4 +180,28 @@ void wordTokenizer(string s)
 		tempToken.push_back(tPtr);
 	    tPtr = strtok(NULL, "()");
 	}
+}
+
+string constantConverter(string c)
+{
+	char binary[17] = "0000000000000000";
+	int temp[16];
+	
+	int binaryIndex;
+	int arrayIndex = 16;
+	int binaryInt = atoi((char *)c.c_str());
+	
+	for(int i = 0; i < 16; i++)
+	{
+		temp[i] = binaryInt % 2;
+    	binaryInt /= 2;
+    }
+    for(int i = arrayIndex; i >= 0; i--)
+    {
+    	binary[i - 1] = temp[16 - i] + '0';
+	}
+	
+	string temp_s = binary;
+	
+	return temp_s;
 }

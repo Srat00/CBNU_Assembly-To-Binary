@@ -9,8 +9,10 @@ Assembly Instruction을 Machine Code로 변환하는데 필요한 데이터를 제공하는 헤더
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <string>
 #include <vector>
+#include <sstream>
 
 using namespace std;
 using std::string;
@@ -33,8 +35,10 @@ const string shamt = "00000";
 vector<string> instruction;
 vector<string> machineCode;
 vector<string> tempToken;
+char tempBirany[17];
 
 //Function Init
 void instructionInit(); //Instruction Set Number Init 
 string registerSelector(string regi); //Resigster Select
 void wordTokenizer(string s); //lw, sw tokenizer 
+string constantConverter(string c);
