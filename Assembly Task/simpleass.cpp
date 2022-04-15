@@ -41,23 +41,22 @@ int main(int argc, char** argv)
 			//get line
 			pStr = fgets(buffer, 255, inputFile);
 			//tokenize
-			char *tPtr = strtok(pStr, " 	,");
+			char *tPtr = strtok(pStr, " ,\n\t");
 		    while (tPtr != NULL)
 		    {
 		    	instruction.push_back(tPtr);
-		        tPtr = strtok(NULL, " 	,");
+		        tPtr = strtok(NULL, " ,\n\t");
 		    }
 		}
-
 /*
 		//debug
 		for (int i = 0; i < instruction.size(); i++)
 		{
 			printf((char *)instruction[i].c_str());
-			printf(" ");
+			printf(" / ");
 		}
 */
-		
+				
 		//여기까지 진행했으면 instruction 벡터에 모든 instruction이 분리되어 들어가있을것이다.
 		int index = 0;
 		while(index < instruction.size())
@@ -104,6 +103,7 @@ int main(int argc, char** argv)
 				//const or address (16 bit), tempToken[0];
 				machineCode.push_back(constantConverter(tempToken[0]));
 				index += 3;
+				tempToken.clear();
 			}
 			
 			else if(instruction[index] == "sw")
@@ -115,6 +115,7 @@ int main(int argc, char** argv)
 				//const or address (16 bit), tempToken[0];
 				machineCode.push_back(constantConverter(tempToken[0]));
 				index += 3;
+				tempToken.clear();
 			}
 		}
 		
@@ -127,6 +128,24 @@ int main(int argc, char** argv)
 		//Text File Close & Stream Close Checker
 		if (fclose(inputFile) != 0) { printf("Input file Error"); return 1; }
 		else if (fclose(outputFile) != 0) { printf("Output file Error"); return 1; }
+		
+		
+		//Output Postprocess 
+		FILE *outputPostprocess = fopen(argv[2], "r+");
+		
+		fseek(outputPostprocess, 0, SEEK_END);
+    	int outSize = ftell(outputPostprocess);
+    	fseek(outputPostprocess, 0, SEEK_SET);
+    	
+    	char buffer[outSize];
+    	for(int i = 0; i < outSize; i++)
+    	{
+    		if (i % 4 == 0 && i != 0) fputs(" ", outputPostprocess);
+    		fseek(outputPostprocess, 1, SEEK_CUR);
+		}
+    	
+		if (fclose(outputPostprocess) != 0) { printf("Output file Error"); return 1; }
+		
 		
 		printf("Task Complete.");
 		return 1;
@@ -190,17 +209,32 @@ string constantConverter(string c)
 	int binaryIndex;
 	int arrayIndex = 16;
 	int binaryInt = atoi((char *)c.c_str());
-	
-	for(int i = 0; i < 16; i++)
+	if(binaryInt >= 0)
 	{
-		temp[i] = binaryInt % 2;
-    	binaryInt /= 2;
-    }
-    for(int i = arrayIndex; i >= 0; i--)
-    {
-    	binary[i - 1] = temp[16 - i] + '0';
+		for(int i = 0; i < 16; i++)
+		{
+			temp[i] = binaryInt % 2;
+	    	binaryInt /= 2;
+	    }
+	    for(int i = arrayIndex; i >= 0; i--)
+	    {
+	    	binary[i - 1] = temp[16 - i] + '0';
+		}
 	}
-	
+	else if(binaryInt < 0)
+	{
+		int absolute = -binaryInt-1;
+		for(int i = 0; i < 16; i++)
+		{
+			temp[i] = absolute % 2;
+	    	absolute /= 2;
+	    }
+	    for(int i = arrayIndex; i >= 0; i--)
+	    {
+	    	if (temp[16 - i] == 0) binary[i - 1] = '1';
+	    	if (temp[16 - i] == 1) binary[i - 1] = '0';
+		}
+	}
 	string temp_s = binary;
 	
 	return temp_s;
